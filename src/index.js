@@ -18,30 +18,58 @@ toyForm.addEventListener("submit", (event) => {
   }
 
   function renderToy(toy) {
-    const toyCollection = document.getElementById("toy-collection"); 
+    const toyCollection = document.getElementById("toy-collection");
+    
+    const toyCard = document.createElement("div");
+    toyCard.className = "card";
+    
+    const toyName = document.createElement("h2");
+    toyName.textContent = toy.name;
+    
+    const toyImage = document.createElement("img");
+    toyImage.src = toy.image;
+    toyImage.className = "toy-avatar";
+    
+    const toyLikes = document.createElement("p");
+    toyLikes.textContent = `${toy.likes} Likes`;
+    
+    const likeButton = document.createElement("button");
+    likeButton.className = "like-btn";
+    likeButton.id = toy.id;
+    likeButton.textContent = "Like ❤️";
   
-    const toyCard = document.createElement("div"); 
-    toyCard.className = "card"; 
-  
-    const toyName = document.createElement("h2"); 
-    toyName.textContent = toy.name; 
-  
-    const toyImage = document.createElement("img"); 
-    toyImage.src = toy.image; 
-    toyImage.className = "toy-avatar"; 
-  
-    const toyLikes = document.createElement("p"); 
-    toyLikes.textContent = `${toy.likes} Likes`; 
-  
-    const likeButton = document.createElement("button"); 
-    likeButton.className = "like-btn"; 
-    likeButton.id = toy.id; 
-    likeButton.textContent = "Like ❤️"; 
+    
+    likeButton.addEventListener("click", () => {
+      updateLikes(toy, toyLikes);
+    });
   
     toyCard.append(toyName, toyImage, toyLikes, likeButton);
-    
     toyCollection.appendChild(toyCard);
+
   }
+
+
+function updateLikes(toy, toyLikesElement) {
+  const updatedLikes = toy.likes + 1;
+
+  fetch(`http://localhost:3000/toys/${toy.id}`, {
+    method: 'PATCH',
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json"
+    },
+    body: JSON.stringify({
+      likes: updatedLikes
+    })
+  })
+  .then(response => response.json())
+  .then(updatedToy => {
+    
+    toy.likes = updatedToy.likes;
+    toyLikesElement.textContent = `${updatedToy.likes} Likes`;
+  })
+  .catch(error => console.error("Error updating likes:", error));
+}
 
   const addBtn = document.querySelector("#new-toy-btn");
   const toyFormContainer = document.querySelector(".container");
